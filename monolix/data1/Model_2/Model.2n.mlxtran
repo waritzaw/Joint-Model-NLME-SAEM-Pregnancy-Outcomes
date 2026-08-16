@@ -1,0 +1,70 @@
+<DATAFILE>
+
+[FILEINFO]
+file='jointmodel_data_new.csv'
+delimiter = comma
+header = {id, time, y, group, ytype}
+
+[CONTENT]
+id = {use=identifier}
+time = {use=time}
+y = {use=observation, name={y1, y2}, yname={'1', '2'}, type={continuous, discrete}}
+group = {use=covariate, type=categorical}
+ytype = {use=observationtype}
+
+<MODEL>
+
+[COVARIATE]
+input = group
+
+group = {type=categorical, categories={0, 1}}
+
+[INDIVIDUAL]
+input = {a_pop, omega_a, alpha_pop, b_pop, beta1_pop, beta2_pop, c_pop, omega_b}
+
+DEFINITION:
+a = {distribution=normal, typical=a_pop, sd=omega_a}
+alpha = {distribution=normal, typical=alpha_pop, no-variability}
+b = {distribution=normal, typical=b_pop, sd=omega_b}
+beta1 = {distribution=normal, typical=beta1_pop, no-variability}
+beta2 = {distribution=normal, typical=beta2_pop, no-variability}
+c = {distribution=normal, typical=c_pop, no-variability}
+
+[LONGITUDINAL]
+input = {a_}
+
+file = 'jointmodel2.txt'
+
+DEFINITION:
+y1 = {distribution=normal, prediction=E, errorModel=constant(a_)}
+
+<FIT>
+data = {y2, y1}
+model = {Level, y1}
+
+<PARAMETER>
+a_ = {value=1, method=MLE}
+a_pop = {value=4, method=MLE}
+alpha_pop = {value=5, method=MLE}
+b_pop = {value=15, method=MLE}
+beta1_pop = {value=-8, method=MLE}
+beta2_pop = {value=-3, method=MLE}
+c_pop = {value=7, method=MLE}
+omega_a = {value=1, method=MLE}
+omega_b = {value=1, method=MLE}
+
+<MONOLIX>
+
+[TASKS]
+populationParameters()
+individualParameters(method = {conditionalMean, conditionalMode })
+fim(method = StochasticApproximation)
+logLikelihood(method = ImportanceSampling)
+plotResult(method = {indfits, parameterdistribution, covariancemodeldiagnosis, covariatemodeldiagnosis, obspred, vpc, npc, residualsscatter, residualsdistribution, randomeffects, predictiondistribution, likelihoodcontribution, saemresults, condmeanresults, fisher, likelihoodresults })
+
+[SETTINGS]
+GLOBAL:
+exportpath = 'Model.2n'
+nbchains = 5
+autochains = no
+

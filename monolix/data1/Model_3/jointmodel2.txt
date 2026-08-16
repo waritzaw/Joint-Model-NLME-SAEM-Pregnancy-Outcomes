@@ -1,0 +1,17 @@
+
+[LONGITUDINAL]
+input = { a, b, c, alpha, beta1, beta2}
+
+EQUATION:
+E = a/(1+exp(-(t-b)/c))
+
+lgp1 = alpha + beta1*a + beta2*b  
+lgp2 = 1-lgp1
+
+DEFINITION:
+Level = {type = categorical, categories={0,1}
+            logit(P(Level=1)) = lgp1
+}
+
+OUTPUT:
+output = {E, Level}

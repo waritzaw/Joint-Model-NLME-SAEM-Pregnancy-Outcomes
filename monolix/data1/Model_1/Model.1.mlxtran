@@ -1,0 +1,76 @@
+<DATAFILE>
+
+[FILEINFO]
+file='jointmodel_data_new.csv'
+delimiter = comma
+header = {id, time, y, group, ytype}
+
+[CONTENT]
+id = {use=identifier}
+time = {use=time}
+y = {use=observation, name={y1, y2}, yname={'1', '2'}, type={continuous, discrete}}
+group = {use=covariate, type=categorical}
+ytype = {use=observationtype}
+
+<MODEL>
+
+[COVARIATE]
+input = group
+
+group = {type=categorical, categories={0, 1}}
+
+[INDIVIDUAL]
+input = {a_pop, omega_a, alpha_pop, b_pop, beta_pop, c_pop, omega_b, omega_c}
+
+DEFINITION:
+a = {distribution=normal, typical=a_pop, sd=omega_a}
+alpha = {distribution=normal, typical=alpha_pop, no-variability}
+b = {distribution=normal, typical=b_pop, sd=omega_b}
+beta = {distribution=normal, typical=beta_pop, no-variability}
+c = {distribution=normal, typical=c_pop, sd=omega_c}
+
+[LONGITUDINAL]
+input = {a_}
+
+file = 'jointmodel.txt'
+
+DEFINITION:
+y1 = {distribution=normal, prediction=E, errorModel=constant(a_)}
+
+<FIT>
+data = {y2, y1}
+model = {Level, y1}
+
+<PARAMETER>
+a_ = {value=1, method=MLE}
+a_pop = {value=4, method=MLE}
+alpha_pop = {value=-15, method=MLE}
+b_pop = {value=15, method=MLE}
+beta_pop = {value=3, method=MLE}
+c_pop = {value=7, method=MLE}
+omega_a = {value=1, method=MLE}
+omega_b = {value=1, method=MLE}
+omega_c = {value=1, method=MLE}
+
+<MONOLIX>
+
+[TASKS]
+populationParameters()
+individualParameters(method = {conditionalMean, conditionalMode })
+fim(method = StochasticApproximation)
+logLikelihood(method = ImportanceSampling)
+plotResult(method = {indfits, parameterdistribution, covariancemodeldiagnosis, covariatemodeldiagnosis, obspred, vpc, npc, residualsscatter, residualsdistribution, randomeffects, predictiondistribution, likelihoodcontribution, saemresults, condmeanresults, fisher, likelihoodresults })
+
+[SETTINGS]
+GLOBAL:
+exportpath = 'Model.1'
+nbchains = 5
+autochains = no
+
+POPULATION:
+burniniterations = 3
+smoothingiterations = 500
+exploratoryiterations = 1200
+simulatedannealingiterations = 1000
+exploratoryinterval = 300
+
